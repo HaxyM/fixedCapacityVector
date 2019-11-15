@@ -2,6 +2,7 @@
 #define SH_MATH_FIXEDSIZEVECTOR
 
 #include <new>
+#include <stdexcept>
 #include <utility>
 
 namespace shMath
@@ -10,7 +11,9 @@ namespace shMath
  {
   public:
   typedef Type* pointer;
+  typedef Type& reference;
   typedef const Type* const_pointer;
+  typedef const Type& const_reference;
   typedef std :: size_t size_type;
   typedef Type value_type;
   #if (__cplusplus < 201103)
@@ -22,6 +25,8 @@ namespace shMath
   const_pointer data() const noexcept;
   size_type size() const noexcept;
   #endif
+  reference at(size_type n);
+  const_reference at(size_type n) const;
   void pop_back();
   void push_back(const value_type& val);
   private:
@@ -52,7 +57,31 @@ template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCap
 }
 #endif
 
-template <class Type, std :: size_t Capacity> inline void shMath :: fixedCapacityVector <Type, Capacity> :: push_back(const typename shMath :: fixedCapacityVector <Type, Capacity>& val)
+template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCapacityVector <Type, Capacity> :: reference shMath :: fixedCapacityVector <Type, Capacity> :: at(typename shMath :: fixedCapacityVector <Type, Capacity> :: size_type n)
+{
+ if (n < Size)
+ {
+  return *(static_cast<Type* const>(Data) + n)
+ }
+ throw std :: out_of_range();
+}
+
+template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCapacityVector <Type, Capacity> :: const_reference shMath :: fixedCapacityVector <Type, Capacity> :: at(typename shMath :: fixedCapacityVector <Type, Capacity> :: size_type n) const
+{
+ if (n < Size)
+ {
+  return *(static_cast<const Type* const>(Data) + n)
+ }
+ throw std :: out_of_range();
+}
+
+template <class Type, std :: size_t Capacity> inline void shMath :: fixedCapacityVector <Type, Capacity> :: pop_back()
+{
+ --Size;
+ (static_cast<Type* const>(Data) + Size)->~Type();
+}
+
+template <class Type, std :: size_t Capacity> inline void shMath :: fixedCapacityVector <Type, Capacity> :: push_back(const typename shMath :: fixedCapacityVector <Type, Capacity> :: value_type& val)
 {
  if (capacity() == Size)
  {
@@ -72,3 +101,4 @@ template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCap
  return Size;
 }
 #endif
+
