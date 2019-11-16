@@ -5,6 +5,11 @@
 #include <stdexcept>
 #include <utility>
 
+#if (__cplusplus < 201103)
+#else
+#include <type_traits>
+#endif
+
 namespace shMath
 {
  template <class Type, std :: size_t Capacity> class fixedCapacityVector
@@ -16,6 +21,7 @@ namespace shMath
   typedef const Type& const_reference;
   typedef std :: size_t size_type;
   typedef Type value_type;
+  explicit vector(size_type n);
   #if (__cplusplus < 201103)
   size_type capacity() const;
   size_type size() const;
@@ -33,6 +39,21 @@ namespace shMath
   std :: size_t Size;
   char Data[sizeof(Type) * Capacity];
  };
+}
+
+template <class Type, std :: size_t Capacity> shMath :: fixedCapacityVector <Type, Capacity> :: fixedCapacityVector(typename shMath :: fixedCapacityVector <Type, Capacity> :: size_type n)
+: Size(n)
+{
+ Type* first = static_cast<Type*>(Data);
+ Type* const last = first + n;
+ if (n > Capacity)
+ {
+  throw std :: bad_alloc();
+ }
+ for(;first != last;++first)
+ {
+  new (first) Type();
+ }
 }
 
 #if (__cplusplus < 201103)
