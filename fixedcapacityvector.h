@@ -27,10 +27,12 @@ namespace shMath
   template <class InputIterator> vector(InputIterator first, InputIterator last);
   #if (__cplusplus < 201103)
   vector();
+  ~vector();
   size_type capacity() const;
   size_type size() const;
   #else
   vector() noexcept;
+  ~vector() noexcept(std :: is_nothrow_destructible<Type>{});
   size_type capacity() const noexcept;
   pointer data() noexcept;
   const_pointer data() const noexcept;
@@ -98,6 +100,20 @@ template <class Type, std :: size_t Capacity> inline shMath :: fixedCapacityVect
 #endif
 : Size(0u)
 {
+}
+
+#if (__cplusplus < 201103)
+template <class Type, std :: size_t Capacity> shMath :: fixedCapacityVector <Type, Capacity> :: ~fixedCapacityVector()
+#else
+template <class Type, std :: size_t Capacity> shMath :: fixedCapacityVector <Type, Capacity> :: ~fixedCapacityVector() noexcept(std :: is_nothrow_destructible<Type>{})
+#endif
+{
+ Type* dataFirst = static_cast<Type*>(Data);
+ Type* const dataLast = dataFirst + Size;
+ for(;dataFirst != dataLast;++dataFirst)
+ {
+  dataFirst->~Type();
+ }
 }
 
 #if (__cplusplus < 201103)
