@@ -1,6 +1,7 @@
 #ifndef SH_MATH_FIXEDSIZEVECTOR
 #define SH_MATH_FIXEDSIZEVECTOR
 
+#include <iterator>
 #include <new>
 #include <stdexcept>
 #include <utility>
@@ -23,6 +24,7 @@ namespace shMath
   typedef Type value_type;
   explicit vector(size_type n);
   vector(size_type n, const value_type& value);
+  template <class InputIterator> vector(InputIterator first, InputIterator last);
   #if (__cplusplus < 201103)
   vector();
   size_type capacity() const;
@@ -71,6 +73,21 @@ template <class Type, std :: size_t Capacity> shMath :: fixedCapacityVector <Typ
  for(;first != last;++first)
  {
   new (first) Type(value);
+ }
+}
+
+template <class Type, std :: size_t Capacity> template <class InputIterator> shMath :: fixedCapacityVector <Type, Capacity> :: fixedCapacityVector(InputIterator first, InputIterator last)
+: Size(static_cast<std :: size_t>(std :: distance(first, last)))
+{
+ Type* dataFirst = static_cast<Type*>(Data);
+ Type* const dataLast = dataFirst + Size;
+ if (Size > Capacity)
+ {
+  throw std :: bad_alloc();
+ }
+ for(;dataFirst != dataLast;++dataFirst,++first)
+ {
+  new (dataFirst) Type(*first);
  }
 }
 
