@@ -24,9 +24,11 @@ namespace shMath
   explicit vector(size_type n);
   vector(size_type n, const value_type& value);
   #if (__cplusplus < 201103)
+  vector();
   size_type capacity() const;
   size_type size() const;
   #else
+  vector() noexcept;
   size_type capacity() const noexcept;
   pointer data() noexcept;
   const_pointer data() const noexcept;
@@ -70,6 +72,15 @@ template <class Type, std :: size_t Capacity> shMath :: fixedCapacityVector <Typ
  {
   new (first) Type(value);
  }
+}
+
+#if (__cplusplus < 201103)
+template <class Type, std :: size_t Capacity> inline shMath :: fixedCapacityVector <Type, Capacity> :: fixedCapacityVector()
+#else
+template <class Type, std :: size_t Capacity> inline shMath :: fixedCapacityVector <Type, Capacity> :: fixedCapacityVector() noexcept
+#endif
+: Size(0u)
+{
 }
 
 #if (__cplusplus < 201103)
