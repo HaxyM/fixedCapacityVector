@@ -8,6 +8,7 @@
 
 #if (__cplusplus < 201103)
 #else
+#include <initializer_list>
 #include <type_traits>
 #endif
 
@@ -32,6 +33,7 @@ namespace shMath
   size_type size() const;
   #else
   vector() noexcept;
+  vector(std :: initializer_list<value_type> list);
   ~vector() noexcept(std :: is_nothrow_destructible<Type>{});
   size_type capacity() const noexcept;
   pointer data() noexcept;
@@ -101,6 +103,25 @@ template <class Type, std :: size_t Capacity> inline shMath :: fixedCapacityVect
 : Size(0u)
 {
 }
+
+#if (__cplusplus < 201103)
+#else
+template <class Type, std :: size_t Capacity> shMath :: fixedCapacityVector <Type, Capacity> :: fixedCapacityVector(std :: initializer_list<typename shMath :: fixedCapacityVector <Type, Capacity> :: value_type> list)
+: Size(list.size())
+{
+ Type* dataFirst = static_cast<Type*>(Data);
+ typename std :: initializer_list <typename shMath :: fixedCapacityVector <Type, Capacity> :: value_type> :: const_iterator first = list.begin();
+ const typename std :: initializer_list <typename shMath :: fixedCapacityVector <Type, Capacity> :: value_type> :: const_iterator last = list.end();
+ if (list.size() > Capacity)
+ {
+  throw std :: bad_alloc();
+ }
+ for(;first != last;++dataFirst,++first)
+ {
+  new (dataFirst) Type(*first);
+ }
+}
+#endif
 
 #if (__cplusplus < 201103)
 template <class Type, std :: size_t Capacity> shMath :: fixedCapacityVector <Type, Capacity> :: ~fixedCapacityVector()
