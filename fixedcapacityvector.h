@@ -26,13 +26,16 @@ namespace shMath
   explicit fixedCapacityVector(size_type n);
   fixedCapacityVector(size_type n, const value_type& value);
   template <class InputIterator> fixedCapacityVector(InputIterator first, InputIterator last);
+  template <std :: size_t AnotherCapacity> fixedCapaityVector(const fixedCapacityVector<Type, AnotherCapacity>& a);
   #if (__cplusplus < 201103)
   fixedCapacityVector();
+  fixedCapacityVector(const fixedCapacityVector& a);
   ~fixedCapacityVector();
   size_type capacity() const;
   size_type size() const;
   #else
   fixedCapacityVector() noexcept;
+  fixedCapacityVector(const fixedCapacityVector& a) noexcept(std :: is_nothrow_copy_constructible<Type>{});
   fixedCapacityVector(std :: initializer_list<value_type> list);
   ~fixedCapacityVector() noexcept(std :: is_nothrow_destructible<Type>{});
   size_type capacity() const noexcept;
@@ -102,6 +105,38 @@ template <class Type, std :: size_t Capacity> inline shMath :: fixedCapacityVect
 #endif
 : Size(0u)
 {
+}
+
+template <class Type, std :: size_t Capacity> template <std :: size_t AnotherCapacity> shMath :: fixedCapacityVector<Type, Capacity> :: fixedCapaityVector(const fixedCapacityVector<Type, AnotherCapacity>& a)
+: Size(a.Size);
+{
+ Type* dataFirst = static_cast<Type*>(Data);
+ Type* const dataLast = dataFirst + Size;
+ Type* first = static_cast<Type*>(a.Data);
+ if (Size > Capacity)
+ {
+  throw std :: bad_alloc();
+ }
+ for(;dataFirst != dataLast;++dataFirst,++first)
+ {
+  new (dataFirst) Type(*first);
+ }
+}
+
+#if (__cplusplus < 201103)
+template <class Type, std :: size_t Capacity> shMath :: fixedCapacityVector <Type, Capacity> :: fixedCapacityVector(const shMath :: fixedCapacityVector<Type, Capacity>& a)
+#else
+template <class Type, std :: size_t Capacity> shMath :: fixedCapacityVector <Type, Capacity> :: fixedCapacityVector(const shMath :: fixedCapacityVector<Type, Capacity>& a) noexcept(std :: is_nothrow_copy_constructible<Type>{})
+#endif
+:Size(a.Size)
+{
+ Type* dataFirst = static_cast<Type*>(Data);
+ Type* const dataLast = dataFirst + Size;
+ Type* first = static_cast<Type*>(a.Data);
+ for(;dataFirst != dataLast;++dataFirst,++first)
+ {
+  new (dataFirst) Type(*first);
+ }
 }
 
 #if (__cplusplus < 201103)
