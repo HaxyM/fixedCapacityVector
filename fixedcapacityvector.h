@@ -23,18 +23,18 @@ namespace shMath
   typedef const Type& const_reference;
   typedef std :: size_t size_type;
   typedef Type value_type;
-  explicit vector(size_type n);
-  vector(size_type n, const value_type& value);
-  template <class InputIterator> vector(InputIterator first, InputIterator last);
+  explicit fixedCapacityVector(size_type n);
+  fixedCapacityVector(size_type n, const value_type& value);
+  template <class InputIterator> fixedCapacityVector(InputIterator first, InputIterator last);
   #if (__cplusplus < 201103)
-  vector();
-  ~vector();
+  fixedCapacityVector();
+  ~fixedCapacityVector();
   size_type capacity() const;
   size_type size() const;
   #else
-  vector() noexcept;
-  vector(std :: initializer_list<value_type> list);
-  ~vector() noexcept(std :: is_nothrow_destructible<Type>{});
+  fixedCapacityVector() noexcept;
+  fixedCapacityVector(std :: initializer_list<value_type> list);
+  ~fixedCapacityVector() noexcept(std :: is_nothrow_destructible<Type>{});
   size_type capacity() const noexcept;
   pointer data() noexcept;
   const_pointer data() const noexcept;
