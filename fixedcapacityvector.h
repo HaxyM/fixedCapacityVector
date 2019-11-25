@@ -37,6 +37,8 @@ namespace shMath
   fixedCapacityVector() noexcept;
   fixedCapacityVector(const fixedCapacityVector& a) noexcept(std :: is_nothrow_copy_constructible<Type>{});
   fixedCapacityVector(std :: initializer_list<value_type> list);
+  template <std :: size_t AnotherCapacity> fixedCapaityVector(fixedCapacityVector<Type, AnotherCapacity>&& a);
+  fixedCapacityVector(fixedCapacityVector&& a) noexcept(std :: is_nothrow_move_constructible<Type>{});
   ~fixedCapacityVector() noexcept(std :: is_nothrow_destructible<Type>{});
   size_type capacity() const noexcept;
   pointer data() noexcept;
@@ -138,6 +140,40 @@ template <class Type, std :: size_t Capacity> shMath :: fixedCapacityVector <Typ
   new (dataFirst) Type(*first);
  }
 }
+
+#if (__cplusplus < 201103)
+#else
+template <class Type, std :: size_t Capacity> template <std :: size_t AnotherCapacity> shMath :: fixedCapacityVector <Type, Capacity> :: fixedCapacityVector(shMath :: fixedCapacityVector<Type, AnotherCapacity>&& a)
+: Size(a.Size)
+{
+ Type* dataFirst = static_cast<Type*>(Data);
+ Type* const dataLast = dataFirst + Size;
+ Type* first = static_cast<Type*>(a.Data);
+ if (Size > Capacity)
+ {
+  throw std :: bad_alloc();
+ }
+ for(;dataFirst != dataLast;++dataFirst,++first)
+ {
+  new (dataFirst) Type(std :: move(*first));
+ }
+}
+#endif
+
+#if (__cplusplus < 201103)
+#else
+template <class Type, std :: size_t Capacity> shMath :: fixedCapacityVector <Type, Capacity> :: fixedCapacityVector(shMath :: fixedCapacityVector<Type, Capacity>&& a) noexcept(std :: is_nothrow_move_constructible<Type>{})
+: Size(a.Size)
+{
+ Type* dataFirst = static_cast<Type*>(Data);
+ Type* const dataLast = dataFirst + Size;
+ Type* first = static_cast<Type*>(a.Data);
+ for(;dataFirst != dataLast;++dataFirst,++first)
+ {
+  new (dataFirst) Type(std :: move(*first));
+ }
+}
+#endif
 
 #if (__cplusplus < 201103)
 #else
