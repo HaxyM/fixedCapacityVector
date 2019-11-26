@@ -2,6 +2,7 @@
 #define SH_MATH_FIXEDSIZEVECTOR
 
 #include <iterator>
+#include <memory>
 #include <new>
 #include <stdexcept>
 #include <utility>
@@ -79,10 +80,7 @@ template <class Type, std :: size_t Capacity> shMath :: fixedCapacityVector <Typ
  {
   throw std :: bad_alloc();
  }
- for(;first != last;++first)
- {
-  new (first) Type(value);
- }
+ std :: uninitialized_fill(first, last, value);
 }
 
 template <class Type, std :: size_t Capacity> template <class InputIterator> shMath :: fixedCapacityVector <Type, Capacity> :: fixedCapacityVector(InputIterator first, InputIterator last)
