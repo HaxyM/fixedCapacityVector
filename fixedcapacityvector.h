@@ -74,7 +74,7 @@ template <class Type, std :: size_t Capacity> shMath :: fixedCapacityVector <Typ
 template <class Type, std :: size_t Capacity> shMath :: fixedCapacityVector <Type, Capacity> :: fixedCapacityVector(typename shMath :: fixedCapacityVector <Type, Capacity> :: size_type n, const typename shMath :: fixedCapacityVector <Type, Capacity> :: value_type& value)
 : Size(n)
 {
- Type* first = static_cast<Type*>(Data);
+ Type* const first = static_cast<Type*>(Data);
  Type* const last = first + n;
  if (n > Capacity)
  {
@@ -86,16 +86,12 @@ template <class Type, std :: size_t Capacity> shMath :: fixedCapacityVector <Typ
 template <class Type, std :: size_t Capacity> template <class InputIterator> shMath :: fixedCapacityVector <Type, Capacity> :: fixedCapacityVector(InputIterator first, InputIterator last)
 : Size(static_cast<std :: size_t>(std :: distance(first, last)))
 {
- Type* dataFirst = static_cast<Type*>(Data);
- Type* const dataLast = dataFirst + Size;
+ Type* const dataFirst = static_cast<Type*>(Data);
  if (Size > Capacity)
  {
   throw std :: bad_alloc();
  }
- for(;dataFirst != dataLast;++dataFirst,++first)
- {
-  new (dataFirst) Type(*first);
- }
+ std :: uninitialized_copy(first, last, dataFirst);
 }
 
 #if (__cplusplus < 201103)
@@ -110,17 +106,14 @@ template <class Type, std :: size_t Capacity> inline shMath :: fixedCapacityVect
 template <class Type, std :: size_t Capacity> template <std :: size_t AnotherCapacity> shMath :: fixedCapacityVector<Type, Capacity> :: fixedCapaityVector(const fixedCapacityVector<Type, AnotherCapacity>& a)
 : Size(a.Size);
 {
- Type* dataFirst = static_cast<Type*>(Data);
- Type* const dataLast = dataFirst + Size;
- Type* first = static_cast<Type*>(a.Data);
+ Type* const dataFirst = static_cast<Type*>(Data);
+ Type* const first = static_cast<Type*>(a.Data);
+ Type* const last = first + Size;
  if (Size > Capacity)
  {
   throw std :: bad_alloc();
  }
- for(;dataFirst != dataLast;++dataFirst,++first)
- {
-  new (dataFirst) Type(*first);
- }
+ std :: uninitialized_copy(first, last, dataFirst);
 }
 
 #if (__cplusplus < 201103)
@@ -130,13 +123,10 @@ template <class Type, std :: size_t Capacity> shMath :: fixedCapacityVector <Typ
 #endif
 :Size(a.Size)
 {
- Type* dataFirst = static_cast<Type*>(Data);
- Type* const dataLast = dataFirst + Size;
- Type* first = static_cast<Type*>(a.Data);
- for(;dataFirst != dataLast;++dataFirst,++first)
- {
-  new (dataFirst) Type(*first);
- }
+ Type* const dataFirst = static_cast<Type*>(Data);
+ Type* const first = static_cast<Type*>(a.Data);
+ Type* const last = first + Size;
+ std :: uninitialized_copy(first, last, dataFirst);
 }
 
 #if (__cplusplus < 201103)
@@ -178,17 +168,14 @@ template <class Type, std :: size_t Capacity> shMath :: fixedCapacityVector <Typ
 template <class Type, std :: size_t Capacity> shMath :: fixedCapacityVector <Type, Capacity> :: fixedCapacityVector(std :: initializer_list<typename shMath :: fixedCapacityVector <Type, Capacity> :: value_type> list)
 : Size(list.size())
 {
- Type* dataFirst = static_cast<Type*>(Data);
+ Type* const dataFirst = static_cast<Type*>(Data);
  typename std :: initializer_list <typename shMath :: fixedCapacityVector <Type, Capacity> :: value_type> :: const_iterator first = list.begin();
  const typename std :: initializer_list <typename shMath :: fixedCapacityVector <Type, Capacity> :: value_type> :: const_iterator last = list.end();
  if (list.size() > Capacity)
  {
   throw std :: bad_alloc();
  }
- for(;first != last;++dataFirst,++first)
- {
-  new (dataFirst) Type(*first);
- }
+ std :: uninitialized_copy(first, last, dataFirst);
 }
 #endif
 
