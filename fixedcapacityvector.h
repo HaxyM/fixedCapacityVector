@@ -241,7 +241,7 @@ template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCap
 {
  if (n < Size)
  {
-  return *(static_cast<Type* const>(Data) + n)
+  return *(static_cast<Type* const>(Data) + n);
  }
  throw std :: out_of_range();
 }
@@ -250,7 +250,7 @@ template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCap
 {
  if (n < Size)
  {
-  return *(static_cast<const Type* const>(Data) + n)
+  return *(static_cast<const Type* const>(Data) + n);
  }
  throw std :: out_of_range();
 }
