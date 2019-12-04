@@ -257,7 +257,7 @@ template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCap
 template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCapacityVector <Type, Capacity> :: reference shMath :: fixedCapacityVector <Type, Capacity> :: front() & noexcept
 #endif
 {
- return *(static_cast<const Type* const>(Data));
+ return *(static_cast<Type* const>(Data));
 }
 
 #if (__cplusplus < 201103)
@@ -268,6 +268,19 @@ template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCap
 {
  return *(static_cast<const Type* const>(Data));
 }
+
+#if (__cplusplus < 201103)
+#else
+template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCapacityVector <Type, Capacity> :: rvalue_reference shMath :: fixedCapacityVector <Type, Capacity> :: front() && noexcept
+{
+ return std :: move(*(static_cast<Type* const>(Data)));
+}
+
+template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCapacityVector <Type, Capacity> :: const_rvalue_reference shMath :: fixedCapacityVector <Type, Capacity> :: front() const && noexcept
+{
+ return std :: move(*(static_cast<const Type* const>(Data)));
+}
+#endif
 
 #if (__cplusplus < 201103)
 template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCapacityVector <Type, Capacity> :: reference shMath :: fixedCapacityVector <Type, Capacity> :: back()
