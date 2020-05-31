@@ -70,7 +70,11 @@ namespace shMath
   void push_back(const value_type& val);
   private:
   std :: size_t Size;
+  #if (__cplusplus < 201103)
   char Data[sizeof(Type) * Capacity];
+  #else
+  typename std :: aligned_storage <sizeof(Type), alignof(Type)> :: type Data[Capacity];
+  #endif
  };
 }
 
