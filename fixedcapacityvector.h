@@ -319,7 +319,7 @@ template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCap
  {
   return *(reinterpret_cast<Type* const>(Data) + n);
  }
- throw std :: out_of_range();
+ throw std :: out_of_range("Index out of range.");
 }
 
 template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCapacityVector <Type, Capacity> :: const_reference shMath :: fixedCapacityVector <Type, Capacity> :: at(typename shMath :: fixedCapacityVector <Type, Capacity> :: size_type n) const
@@ -328,7 +328,7 @@ template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCap
  {
   return *(reinterpret_cast<const Type* const>(Data) + n);
  }
- throw std :: out_of_range();
+ throw std :: out_of_range("Index out of range.");
 }
 
 template <class Type, std :: size_t Capacity> inline void shMath :: fixedCapacityVector <Type, Capacity> :: pop_back()
