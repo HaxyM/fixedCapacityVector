@@ -33,6 +33,7 @@ namespace shMath
   fixedCapacityVector(const fixedCapacityVector& a);
   ~fixedCapacityVector();
   size_type capacity() const;
+  bool empty() const;
   size_type size() const;
   reference operator [] (size_type n);
   const_reference operator [] (size_type n) const;
@@ -41,6 +42,11 @@ namespace shMath
   reference back();
   const_reference back() const;
   #else
+  #if (__cplusplus < 202002)
+  bool empty() const noexcept;
+  #else
+  [[nodiscard]] constexpr bool empty() const noexcept;
+  #endif
   typedef Type&& rvalue_reference;
   typedef const Type&& const_rvalue_reference;
   fixedCapacityVector() noexcept;
@@ -236,6 +242,19 @@ template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCap
  return reinterpret_cast<typename shMath :: fixedCapacityVector<Type, Capacity> :: const_pointer>(Data);
 }
 #endif
+
+#if (__cplusplus < 201103)
+template <class Type, std :: size_t Capacity> inline bool shMath :: fixedCapacityVector <Type, Capacity> :: empty() const
+#else
+#if (__cplusplus < 202002)
+template <class Type, std :: size_t Capacity> inline bool shMath :: fixedCapacityVector <Type, Capacity> :: empty() const noexcept
+#else
+template <class Type, std :: size_t Capacity> [[nodiscard]] inline constexpr bool shMath :: fixedCapacityVector <Type, Capacity> :: empty() const noexcept
+#endif
+#endif
+{
+ return (Size == 0u);
+}
 
 #if (__cplusplus < 201103)
 template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCapacityVector <Type, Capacity> :: reference shMath :: fixedCapacityVector <Type, Capacity> :: operator [] (typename shMath :: fixedCapacityVector <Type, Capacity> :: size_type n)
