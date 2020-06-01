@@ -41,6 +41,7 @@ namespace shMath
   const_reference front() const;
   reference back();
   const_reference back() const;
+  void clear();
   #else
   #if (__cplusplus < 202002)
   bool empty() const noexcept;
@@ -69,6 +70,7 @@ namespace shMath
   const_reference back() const & noexcept;
   rvalue_reference back() && noexcept;
   const_rvalue_reference back() const && noexcept;
+  void clear() noexcept(std :: is_nothrow_destructible<Type>{});
   #endif
   reference at(size_type n);
   const_reference at(size_type n) const;
@@ -380,4 +382,17 @@ template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCap
  return Size;
 }
 #endif
+
+#if (__cplusplus < 201103)
+template <class Type, std :: size_t Capacity> void shMath :: fixedCapacityVector <Type, Capacity> :: clear()
+#else
+template <class Type, std :: size_t Capacity> void shMath :: fixedCapacityVector <Type, Capacity> :: clear() noexcept(std :: is_nothrow_destructible<Type>{})
+#endif
+{
+ Type* last = reinterpret_cast<Type*>(Data) + Size - 1u;
+ for(;Size != 0u;--Size,--last)
+ {
+  last->~Type();
+ }
+}
 
