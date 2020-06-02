@@ -56,7 +56,7 @@ namespace shMath
   template <std :: size_t AnotherCapacity> fixedCapacityVector(fixedCapacityVector<Type, AnotherCapacity>&& a);
   fixedCapacityVector(fixedCapacityVector&& a) noexcept(std :: is_nothrow_move_constructible<Type>{});
   ~fixedCapacityVector() noexcept(std :: is_nothrow_destructible<Type>{});
-  size_type capacity() const noexcept;
+  constexpr size_type capacity() const noexcept;
   pointer data() noexcept;
   const_pointer data() const noexcept;
   size_type size() const noexcept;
@@ -226,10 +226,10 @@ template <class Type, std :: size_t Capacity> shMath :: fixedCapacityVector <Typ
 #if (__cplusplus < 201103)
 template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCapacityVector <Type, Capacity> :: size_type shMath :: fixedCapacityVector <Type, Capacity> :: capacity() const
 #else
-template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCapacityVector <Type, Capacity> :: size_type shMath :: fixedCapacityVector <Type, Capacity> :: capacity() const noexcept
+template <class Type, std :: size_t Capacity> constexpr inline typename shMath :: fixedCapacityVector <Type, Capacity> :: size_type shMath :: fixedCapacityVector <Type, Capacity> :: capacity() const noexcept
 #endif
 {
- return sizeof(Type) * Capacity;
+ return Capacity;
 }
 
 #if (__cplusplus < 201103)
