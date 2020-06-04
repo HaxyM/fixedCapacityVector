@@ -211,17 +211,12 @@ template <class Type, std :: size_t Capacity> shMath :: fixedCapacityVector <Typ
 #endif
 
 #if (__cplusplus < 201103)
-template <class Type, std :: size_t Capacity> shMath :: fixedCapacityVector <Type, Capacity> :: ~fixedCapacityVector()
+template <class Type, std :: size_t Capacity> inline shMath :: fixedCapacityVector <Type, Capacity> :: ~fixedCapacityVector()
 #else
-template <class Type, std :: size_t Capacity> shMath :: fixedCapacityVector <Type, Capacity> :: ~fixedCapacityVector() noexcept(std :: is_nothrow_destructible<Type>{})
+template <class Type, std :: size_t Capacity> inline shMath :: fixedCapacityVector <Type, Capacity> :: ~fixedCapacityVector() noexcept(std :: is_nothrow_destructible<Type>{})
 #endif
 {
- Type* dataFirst = reinterpret_cast<Type*>(Data);
- Type* const dataLast = dataFirst + Size;
- for(;dataFirst != dataLast;++dataFirst)
- {
-  dataFirst->~Type();
- }
+ clear();
 }
 
 #if (__cplusplus < 201103)
