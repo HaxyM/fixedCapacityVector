@@ -386,7 +386,6 @@ template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCap
 {
  return Size;
 }
-#endif
 
 #if (__cplusplus < 201103)
 template <class Type, std :: size_t Capacity> void shMath :: fixedCapacityVector <Type, Capacity> :: clear()
@@ -394,9 +393,6 @@ template <class Type, std :: size_t Capacity> void shMath :: fixedCapacityVector
 template <class Type, std :: size_t Capacity> void shMath :: fixedCapacityVector <Type, Capacity> :: clear() noexcept(std :: is_nothrow_destructible<Type>{})
 #endif
 {
- Type* last = reinterpret_cast<Type*>(Data) + Size - 1u;
- for(;Size != 0u;--Size,--last)
- {
-  last->~Type();
- }
+ while (Size != 0u) pop_back();
 }
+#endif
