@@ -42,6 +42,7 @@ namespace shMath
   reference back();
   const_reference back() const;
   void clear();
+  void pop_back();
   #else
   #if (__cplusplus < 202002)
   bool empty() const noexcept;
@@ -71,10 +72,10 @@ namespace shMath
   rvalue_reference back() && noexcept;
   const_rvalue_reference back() const && noexcept;
   void clear() noexcept(std :: is_nothrow_destructible<Type>{});
+  void pop_back() noexcept(std :: is_nothrow_destructible<Type>{});
   #endif
   reference at(size_type n);
   const_reference at(size_type n) const;
-  void pop_back();
   void push_back(const value_type& val);
   private:
   std :: size_t Size;
@@ -356,10 +357,14 @@ template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCap
  throw std :: out_of_range("Index out of range.");
 }
 
+#if (__cplusplus < 201103)
 template <class Type, std :: size_t Capacity> inline void shMath :: fixedCapacityVector <Type, Capacity> :: pop_back()
+#else
+template <class Type, std :: size_t Capacity> inline void shMath :: fixedCapacityVector <Type, Capacity> :: pop_back() noexcept(std :: is_nothrow_destructible<Type>{})
+#endif
 {
+ (reinterpret_cast<Type* const>(Data) + Size - 1u)->~Type();
  --Size;
- (reinterpret_cast<Type* const>(Data) + Size)->~Type();
 }
 
 template <class Type, std :: size_t Capacity> inline void shMath :: fixedCapacityVector <Type, Capacity> :: push_back(const typename shMath :: fixedCapacityVector <Type, Capacity> :: value_type& val)
@@ -395,4 +400,3 @@ template <class Type, std :: size_t Capacity> void shMath :: fixedCapacityVector
   last->~Type();
  }
 }
-
