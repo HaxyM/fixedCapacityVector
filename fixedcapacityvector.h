@@ -78,10 +78,15 @@ namespace shMath
   const_reference at(size_type n) const;
   void push_back(const value_type& val);
   private:
+  void fillN();
   std :: size_t Size;
   #if (__cplusplus < 201103)
   char Data[sizeof(Type) * Capacity];
   #else
+  void fillN(std :: integral_constant<bool, false>, std :: integral_constant<bool, false>);
+  void fillN(std :: integral_constant<bool, false>, std :: integral_constant<bool, true>);
+  void fillN(std :: integral_constant<bool, true>, std :: integral_constant<bool, false>) noexcept;
+  void fillN(std :: integral_constant<bool, true>, std :: integral_constant<bool, true>) noexcept;
   typename std :: aligned_storage <sizeof(Type), alignof(Type)> :: type Data[Capacity];
   #endif
  };
@@ -90,33 +95,14 @@ namespace shMath
 template <class Type, std :: size_t Capacity> inline shMath :: fixedCapacityVector <Type, Capacity> :: fixedCapacityVector(typename shMath :: fixedCapacityVector <Type, Capacity> :: size_type n)
 : Size(n)
 {
- #if (__cplusplus < 201703)
- Type* first = reinterpret_cast<Type*>(Data);
- Type* const last = first + n;
- if (n > Capacity)
- {
-  throw std :: bad_alloc();
- }
- for(;first != last;++first)
- {
-  try
-  {
-   new (first) Type();
-  }
-  catch(...)
-  {
-   Type* const Begin = reinterpret_cast<Type* const>(Data);
-   while (first > Begin) (--first)->~Type(); //TODO: What if destructor fails?
-   throw;
-  }
- }
+ #if (__cplusplus < 201103)
+ fillN();
  #else
- Type* const first = reinterpret_cast<Type* const>(Data);
  if (Size > Capacity)
  {
   throw std :: bad_alloc();
  }
- std :: uninitialized_default_construct_n(first, Size);
+ fillN(std :: is_nothrow_default_constructible<Type>{}, std :: is_nothrow_destructible<Type>{});
  #endif
 }
 
@@ -408,4 +394,85 @@ template <class Type, std :: size_t Capacity> void shMath :: fixedCapacityVector
 {
  while (Size != 0u) pop_back();
 }
+
+template <class Type, std :: size_t Capacity> void shMath :: fixedCapacityVector <Type, Capacity> :: fillN()
+{
+ Type* first = reinterpret_cast<Type*>(Data);
+ Type* const last = first + Size;
+ try
+ {
+  for(;first != last;++first) new (first) Type();
+ }
+ catch(...)
+ {
+  Size = std :: distance(reinterpret_cast<Type* const>(Data), first);
+  for(;Size != 0u;--Size)
+  {
+   try
+   {
+    (--first)->~Type();
+   }
+   catch(...)
+   {
+    return; //Nothing better could be done, just pretend everything is ok.
+   }
+  }
+  throw;
+ }
+}
+
+#if (__cplusplus < 201103)
+#else
+template <class Type, std :: size_t Capacity> inline void shMath :: fixedCapacityVector <Type, Capacity> :: fillN(std :: integral_constant<bool, false>, std :: integral_constant<bool, false>)
+{
+ fillN();
+}
+#endif
+
+#if (__cplusplus < 201103)
+#else
+template <class Type, std :: size_t Capacity> inline void shMath :: fixedCapacityVector <Type, Capacity> :: fillN(std :: integral_constant<bool, false>, std :: integral_constant<bool, true>)
+{
+ #if (__cplusplus < 201703)
+ Type* first = reinterpret_cast<Type*>(Data);
+ Type* const last = first + Size;
+ try
+ {
+  for(;first != last;++first) new (first) Type();
+ }
+ catch(...)
+ {
+  Type* const Begin = reinterpret_cast<Type* const>(Data);
+  while(first != Begin) (--first)->~Type();
+  throw;
+ }
+ #else
+ Type* const first = reinterpret_cast<Type* const>(Data);
+ std :: uninitialized_default_construct_n(first, Size);
+ #endif
+}
+#endif
+
+#if (__cplusplus < 201103)
+#else
+template <class Type, std :: size_t Capacity> inline void shMath :: fixedCapacityVector <Type, Capacity> :: fillN(std :: integral_constant<bool, true>, std :: integral_constant<bool, false>) noexcept
+{
+ #if (__cplusplus < 201703)
+ Type* first = reinterpret_cast<Type*>(Data);
+ Type* const last = first + Size;
+ while(first != last) new (first++) Type();
+ #else
+ Type* const first = reinterpret_cast<Type* const>(Data);
+ std :: uninitialized_default_construct_n(first, Size);
+ #endif
+}
+#endif
+
+#if (__cplusplus < 201103)
+#else
+template <class Type, std :: size_t Capacity> inline void shMath :: fixedCapacityVector <Type, Capacity> :: fillN(std :: integral_constant<bool, true>, std :: integral_constant<bool, true>) noexcept
+{
+ fillN(std :: integral_constant<bool, true>{}, std :: integral_constant<bool, false>{});
+}
+#endif
 #endif
