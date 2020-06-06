@@ -95,13 +95,13 @@ namespace shMath
 template <class Type, std :: size_t Capacity> inline shMath :: fixedCapacityVector <Type, Capacity> :: fixedCapacityVector(typename shMath :: fixedCapacityVector <Type, Capacity> :: size_type n)
 : Size(n)
 {
- #if (__cplusplus < 201103)
- fillN();
- #else
  if (Size > Capacity)
  {
   throw std :: bad_alloc();
  }
+ #if (__cplusplus < 201103)
+ fillN();
+ #else
  fillN(std :: is_nothrow_default_constructible<Type>{}, std :: is_nothrow_destructible<Type>{});
  #endif
 }
