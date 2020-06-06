@@ -87,9 +87,10 @@ namespace shMath
  };
 }
 
-template <class Type, std :: size_t Capacity> shMath :: fixedCapacityVector <Type, Capacity> :: fixedCapacityVector(typename shMath :: fixedCapacityVector <Type, Capacity> :: size_type n)
+template <class Type, std :: size_t Capacity> inline shMath :: fixedCapacityVector <Type, Capacity> :: fixedCapacityVector(typename shMath :: fixedCapacityVector <Type, Capacity> :: size_type n)
 : Size(n)
 {
+ #if (__cplusplus < 201703)
  Type* first = reinterpret_cast<Type*>(Data);
  Type* const last = first + n;
  if (n > Capacity)
@@ -98,8 +99,25 @@ template <class Type, std :: size_t Capacity> shMath :: fixedCapacityVector <Typ
  }
  for(;first != last;++first)
  {
-  new (first) Type();
+  try
+  {
+   new (first) Type();
+  }
+  catch(...)
+  {
+   Type* const Begin = reinterpret_cast<Type* const>(Data);
+   while (first > Begin) (--first)->~Type(); //TODO: What if destructor fails?
+   throw;
+  }
  }
+ #else
+ Type* const first = reinterpret_cast<Type* const>(Data);
+ if (Size > Capacity)
+ {
+  throw std :: bad_alloc();
+ }
+ std :: uninitialized_default_construct_n(first, Size);
+ #endif
 }
 
 template <class Type, std :: size_t Capacity> shMath :: fixedCapacityVector <Type, Capacity> :: fixedCapacityVector(typename shMath :: fixedCapacityVector <Type, Capacity> :: size_type n, const typename shMath :: fixedCapacityVector <Type, Capacity> :: value_type& value)
