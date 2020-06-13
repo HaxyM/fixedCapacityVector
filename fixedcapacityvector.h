@@ -44,11 +44,6 @@ namespace shMath
   void clear();
   void pop_back();
   #else
-  #if (__cplusplus < 202002)
-  bool empty() const noexcept;
-  #else
-  [[nodiscard]] constexpr bool empty() const noexcept;
-  #endif
   typedef Type&& rvalue_reference;
   typedef const Type&& const_rvalue_reference;
   fixedCapacityVector() noexcept;
@@ -73,6 +68,16 @@ namespace shMath
   const_rvalue_reference back() const && noexcept;
   void clear() noexcept(std :: is_nothrow_destructible<Type>{});
   void pop_back() noexcept(std :: is_nothrow_destructible<Type>{});
+  #if (__cpluspluc < 201703)
+  template <class ... Args> void emplace_back(Args&& ... args);
+  #else
+  template <class ... Args> reference emplace_back(Args&& ... args);
+  #if (__cplusplus < 202002)
+  bool empty() const noexcept;
+  #else
+  [[nodiscard]] constexpr bool empty() const noexcept;
+  #endif
+  #endif
   #endif
   reference at(size_type n);
   const_reference at(size_type n) const;
@@ -423,6 +428,28 @@ template <class Type, std :: size_t Capacity> void shMath :: fixedCapacityVector
 
 #if (__cplusplus < 201103)
 #else
+#if (__cplusplus < 201703)
+template <class Type, std :: size_t Capacity> template <class ... Args> inline void shMath :: fixedCapacityVector <Type, Capacity> :: emplace_back(Args&& ... args)
+#else
+template <class Type, std :: size_t Capacity> template <class ... Args> inline typename shMath :: fixedCapacityVector <Type, Capacity> :: reference shMath :: fixedCapacityVector <Type, Capacity> :: emplace_back(Args&& ... args)
+#endif
+{
+ if (capacity() == Size)
+ {
+  throw std :: bad_alloc();
+ }
+ Type* const address = reinterpret_cast<Type* const>(Data) + Size;
+ new (address) Type (std :: forward<Args>(args)...);
+ ++Size;
+ #if (__cplusplus < 201703)
+ #else
+ return *address;
+ #endif
+}
+#endif
+
+#if (__cplusplus < 201103)
+#else
 template <class Type, std :: size_t Capacity> inline void shMath :: fixedCapacityVector <Type, Capacity> :: fillN(std :: integral_constant<bool, false>, std :: integral_constant<bool, false>)
 {
  fillN();
@@ -476,3 +503,4 @@ template <class Type, std :: size_t Capacity> inline void shMath :: fixedCapacit
 }
 #endif
 #endif
+
