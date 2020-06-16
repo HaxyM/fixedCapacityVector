@@ -68,6 +68,7 @@ namespace shMath
   const_rvalue_reference back() const && noexcept;
   void clear() noexcept(std :: is_nothrow_destructible<Type>{});
   void pop_back() noexcept(std :: is_nothrow_destructible<Type>{});
+  void push_back(rvalue_reference val);
   #if (__cpluspluc < 201703)
   template <class ... Args> void emplace_back(Args&& ... args);
   #else
@@ -381,6 +382,20 @@ template <class Type, std :: size_t Capacity> inline void shMath :: fixedCapacit
  new (address) Type (val);
  ++Size;
 }
+
+#if (__cplusplus < 201103)
+#else
+template <class Type, std :: size_t Capacity> inline void shMath :: fixedCapacityVector <Type, Capacity> :: push_back(typename shMath :: fixedCapacityVector <Type, Capacity> :: rvalue_reference val)
+{
+ if (capacity() == Size)
+ {
+  throw std :: bad_alloc();
+ }
+ Type* const address = reinterpret_cast<Type* const>(Data) + Size;
+ new (address) Type (std :: forward<Type>(val));
+ ++Size;
+}
+#endif
 
 #if (__cplusplus < 201103)
 template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCapacityVector <Type, Capacity> :: size_type shMath :: fixedCapacityVector <Type, Capacity> :: size() const
