@@ -78,6 +78,7 @@ namespace shMath
   bool empty() const noexcept;
   #else
   [[nodiscard]] constexpr bool empty() const noexcept;
+  template <class ... Args> constexpr reference emplace_back(Args&& ... args);
   #endif
   #endif
   #endif
@@ -515,7 +516,11 @@ template <class Type, std :: size_t Capacity> void shMath :: fixedCapacityVector
 #if (__cplusplus < 201703)
 template <class Type, std :: size_t Capacity> template <class ... Args> inline void shMath :: fixedCapacityVector <Type, Capacity> :: emplace_back(Args&& ... args)
 #else
+#if (__cplusplus < 202002)
 template <class Type, std :: size_t Capacity> template <class ... Args> inline typename shMath :: fixedCapacityVector <Type, Capacity> :: reference shMath :: fixedCapacityVector <Type, Capacity> :: emplace_back(Args&& ... args)
+#else
+template <class Type, std :: size_t Capacity> template <class ... Args> constexpr inline typename shMath :: fixedCapacityVector <Type, Capacity> :: reference shMath :: fixedCapacityVector <Type, Capacity> :: emplace_back(Args&& ... args)
+#endif
 #endif
 {
  if (capacity() == Size)
@@ -587,4 +592,3 @@ template <class Type, std :: size_t Capacity> inline void shMath :: fixedCapacit
 }
 #endif
 #endif
-
