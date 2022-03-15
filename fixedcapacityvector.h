@@ -148,13 +148,11 @@ template <class Type, std :: size_t Capacity> template <std :: size_t AnotherCap
 : Size(a.Size)
 {
  Type* const dataFirst = reinterpret_cast<Type*>(Data);
- Type* const first = reinterpret_cast<Type*>(a.Data);
- Type* const last = first + Size;
  if (Size > Capacity)
  {
   throw std :: bad_alloc();
  }
- std :: uninitialized_copy(first, last, dataFirst);
+ std :: uninitialized_copy(a.begin(), a.end(), dataFirst);
 }
 
 #if (__cplusplus < 201103)
@@ -165,9 +163,7 @@ template <class Type, std :: size_t Capacity> shMath :: fixedCapacityVector <Typ
 :Size(a.Size)
 {
  Type* const dataFirst = reinterpret_cast<Type*>(Data);
- Type* const first = reinterpret_cast<Type*>(a.Data);
- Type* const last = first + Size;
- std :: uninitialized_copy(first, last, dataFirst);
+ std :: uninitialized_copy(a.begin(), a.end(), dataFirst);
 }
 
 #if (__cplusplus < 201103)
@@ -184,7 +180,11 @@ template <class Type, std :: size_t Capacity> template <std :: size_t AnotherCap
  }
  for(;dataFirst != dataLast;++dataFirst,++first)
  {
+  #if (__cplusplus < 201703)
   new (dataFirst) Type(std :: move(*first));
+  #else
+  new (dataFirst) Type(std :: move(*std :: launder(first)));
+  #endif
  }
 }
 #endif
@@ -199,7 +199,11 @@ template <class Type, std :: size_t Capacity> shMath :: fixedCapacityVector <Typ
  Type* first = reinterpret_cast<Type*>(a.Data);
  for(;dataFirst != dataLast;++dataFirst,++first)
  {
+  #if (__cplusplus < 201703)
   new (dataFirst) Type(std :: move(*first));
+  #else
+  new (dataFirst) Type(std :: move(*std :: launder(first)));
+  #endif
  }
 }
 #endif
@@ -242,12 +246,20 @@ template <class Type, std :: size_t Capacity> constexpr inline typename shMath :
 #else
 template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCapacityVector <Type, Capacity> :: pointer shMath :: fixedCapacityVector <Type, Capacity> :: data() noexcept
 {
+ #if (__cplusplus < 201703)
  return reinterpret_cast<typename shMath :: fixedCapacityVector <Type, Capacity> :: pointer>(Data);
+ #else
+ return std :: launder(reinterpret_cast<typename shMath :: fixedCapacityVector <Type, Capacity> :: pointer>(Data));
+ #endif
 }
 
 template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCapacityVector <Type, Capacity> :: const_pointer shMath :: fixedCapacityVector <Type, Capacity> :: data() const noexcept
 {
+ #if (__cplusplus < 201703)
  return reinterpret_cast<typename shMath :: fixedCapacityVector<Type, Capacity> :: const_pointer>(Data);
+ #else
+ return std :: launder(reinterpret_cast<typename shMath :: fixedCapacityVector<Type, Capacity> :: const_pointer>(Data));
+ #endif
 }
 #endif
 
@@ -270,7 +282,11 @@ template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCap
 template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCapacityVector <Type, Capacity> :: reference shMath :: fixedCapacityVector <Type, Capacity> :: operator [] (typename shMath :: fixedCapacityVector <Type, Capacity> :: size_type n) noexcept
 #endif
 {
+ #if (__cplusplus < 201703)
  return *(reinterpret_cast<Type* const>(Data) + n);
+ #else
+ return *std :: launder(reinterpret_cast<Type* const>(Data) + n);
+ #endif
 }
 
 #if (__cplusplus < 201103)
@@ -279,7 +295,11 @@ template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCap
 template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCapacityVector <Type, Capacity> :: const_reference shMath :: fixedCapacityVector <Type, Capacity> :: operator [] (typename shMath :: fixedCapacityVector <Type, Capacity> :: size_type n) const noexcept
 #endif
 {
+ #if (__cplusplus < 201703)
  return *(reinterpret_cast<const Type* const>(Data) + n);
+ #else
+ return *std :: launder(reinterpret_cast<const Type* const>(Data) + n);
+ #endif
 }
 
 #if (__cplusplus < 201103)
@@ -288,7 +308,11 @@ template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCap
 template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCapacityVector <Type, Capacity> :: reference shMath :: fixedCapacityVector <Type, Capacity> :: front() & noexcept
 #endif
 {
+ #if (__cplusplus < 201703)
  return *(reinterpret_cast<Type* const>(Data));
+ #else
+ return *std :: launder(reinterpret_cast<Type* const>(Data));
+ #endif
 }
 
 #if (__cplusplus < 201103)
@@ -297,19 +321,31 @@ template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCap
 template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCapacityVector <Type, Capacity> :: const_reference shMath :: fixedCapacityVector <Type, Capacity> :: front() const & noexcept
 #endif
 {
+ #if (__cplusplus < 201703)
  return *(reinterpret_cast<const Type* const>(Data));
+ #else
+ return *std :: launder(reinterpret_cast<const Type* const>(Data));
+ #endif
 }
 
 #if (__cplusplus < 201103)
 #else
 template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCapacityVector <Type, Capacity> :: rvalue_reference shMath :: fixedCapacityVector <Type, Capacity> :: front() && noexcept
 {
+ #if (__cplusplus < 201703)
  return std :: move(*(reinterpret_cast<Type* const>(Data)));
+ #else
+ return std :: move(*std :: launder(reinterpret_cast<Type* const>(Data)));
+ #endif
 }
 
 template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCapacityVector <Type, Capacity> :: const_rvalue_reference shMath :: fixedCapacityVector <Type, Capacity> :: front() const && noexcept
 {
+ #if (__cplusplus < 201703)
  return std :: move(*(reinterpret_cast<const Type* const>(Data)));
+ #else
+ return std :: move(*std :: launder(reinterpret_cast<const Type* const>(Data)));
+ #endif
 }
 #endif
 
@@ -319,7 +355,11 @@ template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCap
 template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCapacityVector <Type, Capacity> :: reference shMath :: fixedCapacityVector <Type, Capacity> :: back() & noexcept
 #endif
 {
+ #if (__cplusplus < 201703)
  return *(reinterpret_cast<Type* const>(Data) + Size - 1u);
+ #else
+ return *std :: launder(reinterpret_cast<Type* const>(Data) + Size - 1u);
+ #endif
 }
 
 #if (__cplusplus < 201103)
@@ -328,19 +368,31 @@ template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCap
 template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCapacityVector <Type, Capacity> :: const_reference shMath :: fixedCapacityVector <Type, Capacity> :: back() const & noexcept
 #endif
 {
+ #if (__cplusplus < 201703)
  return *(reinterpret_cast<const Type* const>(Data) + Size - 1u);
+ #else
+ return *std :: launder(reinterpret_cast<const Type* const>(Data) + Size - 1u);
+ #endif
 }
 
 #if (__cplusplus < 201103)
 #else
 template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCapacityVector <Type, Capacity> :: rvalue_reference shMath :: fixedCapacityVector <Type, Capacity> :: back() && noexcept
 {
+ #if (__cplusplus < 201703)
  return std :: move(*(reinterpret_cast<Type* const>(Data) + Size - 1u));
+ #else
+ return std :: move(*std :: launder(reinterpret_cast<Type* const>(Data) + Size - 1u));
+ #endif
 }
 
 template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCapacityVector <Type, Capacity> :: const_rvalue_reference shMath :: fixedCapacityVector <Type, Capacity> :: back() const && noexcept
 {
+ #if (__cplusplus < 201703)
  return std :: move(*(reinterpret_cast<const Type* const>(Data) + Size - 1u));
+ #else
+ return std :: move(*std :: launder(reinterpret_cast<const Type* const>(Data) + Size - 1u));
+ #endif
 }
 #endif
 
@@ -348,7 +400,11 @@ template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCap
 {
  if (n < Size)
  {
+  #if (__cplusplus < 201703)
   return *(reinterpret_cast<Type* const>(Data) + n);
+  #else
+  return *std :: launder(reinterpret_cast<Type* const>(Data) + n);
+  #endif
  }
  throw std :: out_of_range("Index out of range.");
 }
@@ -357,7 +413,11 @@ template <class Type, std :: size_t Capacity> inline typename shMath :: fixedCap
 {
  if (n < Size)
  {
+  #if (__cplusplus < 201703)
   return *(reinterpret_cast<const Type* const>(Data) + n);
+  #else
+  return *std :: launder(reinterpret_cast<const Type* const>(Data) + n);
+  #endif
  }
  throw std :: out_of_range("Index out of range.");
 }
@@ -368,7 +428,11 @@ template <class Type, std :: size_t Capacity> inline void shMath :: fixedCapacit
 template <class Type, std :: size_t Capacity> inline void shMath :: fixedCapacityVector <Type, Capacity> :: pop_back() noexcept(std :: is_nothrow_destructible<Type>{})
 #endif
 {
+ #if (__cplusplus < 201703)
  (reinterpret_cast<Type* const>(Data) + Size - 1u)->~Type();
+ #else
+ std :: launder(reinterpret_cast<Type* const>(Data) + Size - 1u)->~Type();
+ #endif
  --Size;
 }
 
@@ -430,7 +494,11 @@ template <class Type, std :: size_t Capacity> void shMath :: fixedCapacityVector
   {
    try
    {
+    #if (__cplusplus < 201703)
     (--first)->~Type();
+    #else
+    std :: launder(--first)->~Type();
+    #endif
    }
    catch(...)
    {
@@ -458,7 +526,7 @@ template <class Type, std :: size_t Capacity> template <class ... Args> inline t
  ++Size;
  #if (__cplusplus < 201703)
  #else
- return *address;
+ return *std :: launder(address);
  #endif
 }
 #endif
@@ -489,7 +557,7 @@ template <class Type, std :: size_t Capacity> inline void shMath :: fixedCapacit
   throw;
  }
  #else
- Type* const first = reinterpret_cast<Type* const>(Data);
+ Type* const first = std :: launder(reinterpret_cast<Type* const>(Data));
  std :: uninitialized_default_construct_n(first, Size);
  #endif
 }
@@ -504,7 +572,7 @@ template <class Type, std :: size_t Capacity> inline void shMath :: fixedCapacit
  Type* const last = first + Size;
  while(first != last) new (first++) Type();
  #else
- Type* const first = reinterpret_cast<Type* const>(Data);
+ Type* const first = std :: launder(reinterpret_cast<Type* const>(Data));
  std :: uninitialized_default_construct_n(first, Size);
  #endif
 }
