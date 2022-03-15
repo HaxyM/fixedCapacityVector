@@ -69,7 +69,7 @@ namespace shMath
   void clear() noexcept(std :: is_nothrow_destructible<Type>{});
   void pop_back() noexcept(std :: is_nothrow_destructible<Type>{});
   void push_back(rvalue_reference val);
-  #if (__cpluspluc < 201703)
+  #if (__cplusplus < 201703)
   bool empty() const noexcept;
   template <class ... Args> void emplace_back(Args&& ... args);
   #else
